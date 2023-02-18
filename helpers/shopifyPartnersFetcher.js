@@ -9,10 +9,10 @@ const partnersUrl =
 /**
  * description: This function fetches data from Shopify Partners API
  * @param {number} batchSize - number of records to fetch in a single request
- * @param {string} after - cursor to fetch the next batch of records
+ * @param {string} before - cursor to fetch the next batch of records
  * @param {number} attemptNumber - number of attempts made to fetch the current data
  */
-export const fetchAppEvents = async (batchSize, after, attemptNumber = 0) => {
+export const fetchAppEvents = async (batchSize, before, attemptNumber = 0) => {
     try {
         const query = `
             query {
@@ -20,7 +20,7 @@ export const fetchAppEvents = async (batchSize, after, attemptNumber = 0) => {
                 apiKey
                 id
                 name
-                events(first: ${batchSize}, after: "${after}") {
+                events(last: ${batchSize}, before: "${before}") {
                   pageInfo {
                     hasNextPage
                     hasPreviousPage
@@ -212,7 +212,7 @@ export const fetchAppEvents = async (batchSize, after, attemptNumber = 0) => {
             if (attemptNumber > 3) {
                 // if we have already tried 3 times for the same batch, then throw an error
                 throw new Error(
-                    `Ran into max no. of attempts to fetch data for cusor ${after}`
+                    `Ran into max no. of attempts to fetch data for cusor ${before}`
                 );
             }
 
@@ -226,7 +226,7 @@ export const fetchAppEvents = async (batchSize, after, attemptNumber = 0) => {
                 await new Promise((resolve) => setTimeout(resolve, 1000));
                 return await fetchAppEvents(
                     batchSize,
-                    after,
+                    before,
                     attemptNumber + 1
                 );
             }
@@ -237,7 +237,7 @@ export const fetchAppEvents = async (batchSize, after, attemptNumber = 0) => {
                 console.log(`Reducing the batch size to: ${batchSize / 4}`);
                 return await fetchAppEvents(
                     batchSize / 4,
-                    after,
+                    before,
                     attemptNumber + 1
                 );
             }
@@ -253,17 +253,17 @@ export const fetchAppEvents = async (batchSize, after, attemptNumber = 0) => {
 
         // get the records and the next page status
         const records = data.data?.app?.events?.edges;
-        const hasNextPage = data.data?.app?.events?.pageInfo?.hasNextPage;
+        const hasPreviousPage = data.data?.app?.events?.pageInfo?.hasPreviousPage;
 
         console.log("Response status: ", response.status);
         return {
             records,
-            cursor: records[records.length - 1].cursor,
-            hasNextPage,
+            cursor: records[0]?.cursor,
+            hasPreviousPage,
         };
     } catch (error) {
         console.log("Saving cursor before throwing error");
-        await saveNextCursor(after);
+        await saveNextCursor(before);
         console.log("Saved");
         throw new Error(error);
     }

@@ -7,11 +7,11 @@ const bucket = storage.bucket("posthog-batch-next-url-holder");
 
 /**
  * description: Function to save the cursor for next batch of events to be fetched
- * @param {string} nextCursor - cursor for next batch of events to be fetched
+ * @param {string} nextCursor - cursor for next batch of events
  */
 export const saveNextCursor = async (nextCursor) => {
     try {
-        await bucket.file("next-cursor-shopify-partners").save(nextCursor);
+        await bucket.file("next-cursor-shopify-partners-daily").save(nextCursor);
         return true;
     } catch (error) {
         console.log("Error saving next cursor", error);
@@ -26,11 +26,11 @@ export const saveNextCursor = async (nextCursor) => {
 export const getNextCursor = async () => {
     try {
         const [nextCursor] = await bucket
-            .file("next-cursor-shopify-partners")
+            .file("next-cursor-shopify-partners-daily")
             .download();
         return nextCursor.toString();
     } catch (error) {
-        // console.log("Error getting next cursor from cloud storage", error);
+        console.log("Error getting next cursor from cloud storage", error);
         return null;
     }
 };
