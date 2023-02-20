@@ -5,7 +5,8 @@ import { saveNextCursor, getNextCursor } from "./storage/nextURLStorage.js";
 import { functionName, projectId, batchSize } from "./projectConfig/config.js";
 
 const run = async () => {
-    let initialCursor = before = (await getNextCursor()) || "";
+    let before = (await getNextCursor()) || "";
+    let initialCursor = before;
     console.log("Starting from cursor: ", before);
     let finalCursor = before;
     let hasNext = true;
