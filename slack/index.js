@@ -1,5 +1,7 @@
 import https from "https";
+import * as dotenv from "dotenv";
 
+dotenv.config();
 const endpointSecret = process.env.SLACK_ENDPOINT_SECRET;
 
 /**
