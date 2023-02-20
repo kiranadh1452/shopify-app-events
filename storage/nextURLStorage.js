@@ -1,7 +1,9 @@
 import { Storage } from "@google-cloud/storage";
+import { projectId } from "../projectConfig/config.js";
+
 const storage = new Storage({
     keyFilename: "twperm.json",
-    projectId: "triple-whale-ops",
+    projectId,
 });
 const bucket = storage.bucket("posthog-batch-next-url-holder");
 
@@ -11,7 +13,9 @@ const bucket = storage.bucket("posthog-batch-next-url-holder");
  */
 export const saveNextCursor = async (nextCursor) => {
     try {
-        await bucket.file("next-cursor-shopify-partners-daily").save(nextCursor);
+        await bucket
+            .file("next-cursor-shopify-partners-daily")
+            .save(nextCursor);
         return true;
     } catch (error) {
         console.log("Error saving next cursor", error);
